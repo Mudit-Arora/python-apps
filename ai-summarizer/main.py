@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-api_key = "de6c5474f9a34526b968574c151d2bdb"
+api_key = os.getenv("NEWS_API_KEY")
 url = "https://newsapi.org/v2//top-headlines?" \
     "category=business&" \
      "language=en&" \
