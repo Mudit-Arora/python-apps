@@ -9,5 +9,5 @@ model = init_chat_model(model="gemini-3-flash-preview",
         )
 
 
-repsone = model.invoke("Hello, how are you? Do not include any sign-off or signature in your response.")
-print(repsone.content)
+repsone = model.invoke("Hello, how are you?")
+print(repsone)
