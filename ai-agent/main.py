@@ -11,6 +11,8 @@ import sqlite3
 
 import gradio as gr
 
+from langchain_community.tools.tavily_search import TavilySearchResults
+
 load_dotenv()
 
 api_key = os.getenv("GOOGLE_API_KEY")
@@ -18,6 +20,8 @@ api_key = os.getenv("GOOGLE_API_KEY")
 def get_date():
     """Get the current date"""
     return datetime.now().strftime("%Y-%m-%d")
+
+search = TavilySearchResults(api_key=os.getenv("TAVILY_API_KEY")) # Web Search Tool
 
 conn = sqlite3.connect("langgraph.db", check_same_thread=False) # can have multiple instances of the app
 checkpoint = SqliteSaver(conn=conn)
@@ -27,10 +31,11 @@ llm = ChatGoogleGenerativeAI(model="gemini-3-flash-preview", api_key=api_key)
 
 system_prompt = """
 You are a helpful assistant that can answer questions and help with tasks.
+Use the web search tool to find the latest information on the topic.
 """
 
 agent = create_agent(model=llm,
-                 tools=[get_date], 
+                 tools=[get_date, TavilySearchResults()], 
                  system_prompt=system_prompt, 
                 checkpointer=checkpoint) # Memory for the agent
 
