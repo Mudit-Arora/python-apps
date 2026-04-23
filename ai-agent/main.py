@@ -6,6 +6,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.agents import create_agent
 # from langchain_ollama import ChatOllama
 
+import gradio as gr
+
 load_dotenv()
 
 api_key = os.getenv("GOOGLE_API_KEY")
@@ -23,7 +25,17 @@ You are a helpful assistant that can answer questions and help with tasks.
 
 agent = create_agent(model=llm, tools=[get_date], system_prompt=system_prompt)
 
-user_query = input("Enter a query: ")
-resposne = agent.invoke({"messages": [{"role": "user", "content": user_query}]})
-print(resposne['messages'][-1].content[0]['text'])
-# print(resposne['messages'][-1].content)
+# user_query = input("Enter a query: ")
+# resposne = agent.invoke({"messages": [{"role": "user", "content": user_query}]})
+# print(resposne['messages'][-1].content[0]['text']) # for Gemini
+# print(resposne['messages'][-1].content) # for local LLM
+
+def chat(message):
+    response = agent.invoke({"messages": [{"role": "user", "content": message}]})
+    return response['messages'][-1].content[0]['text']
+
+with gr.Blocks() as demo:
+    gr.Markdown("# AI Agent") #H1 heading
+    gr.ChatInterface(fn=chat)
+
+demo.launch()
