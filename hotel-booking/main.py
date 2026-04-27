@@ -1,6 +1,8 @@
+from re import L
+import re
 import pandas as pd
 
-df = pd.read_csv("hotels.csv")
+df = pd.read_csv("hotels.csv", dtype = {"id": str}) # using id column as str instead of int
 
 class User:
     def view_hotels(self):
@@ -8,13 +10,21 @@ class User:
 
 class Hotel:
     def __init__(self, hotel_id):
-        pass
+        self.hotel_id = hotel_id
 
     def book(self):
-        pass
+        """Book the hotel by changing its availability to no"""
+        df.loc[df["id"] == self.hotel_id, "available"] = "no"
+        df.to_csv("hotels.csv", index=False) # adding index so python doesnt add another column index
 
     def availability(self):
-        pass
+        """Check if the hotel is available"""
+        # squeeze to only get the value of the available column
+        avail= df.loc[df["id"] == self.hotel_id, "available"].squeeze()
+        if avail == "yes":
+            return True
+        else:
+            return False
 
 class ReservationTicket:
     def generate(self, customer_name, hotel_object):
@@ -22,7 +32,7 @@ class ReservationTicket:
 
 print(df)
 id = input("Enter the id of the hotel: ")
-hotel = Hotel(id) # unique id 
+hotel = Hotel(id) # create hotel instance with the id
 if hotel.availability(): # check if that specific hotel is available
     hotel.book()
     name = input("Enter your name: ")
