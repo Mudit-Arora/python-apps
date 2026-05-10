@@ -29,7 +29,10 @@ class Hotel:
         else:
             return False
 
-class ReservationTicket:
+class SpaHotel(Hotel):
+    def book_spa_package(self):
+        pass
+class ReservationTicket():
     def __init__(self, customer_name, hotel_object):
         self.customer_name = customer_name
         self.hotel_object = hotel_object
@@ -41,6 +44,20 @@ class ReservationTicket:
         Name: {customer_name}
         Hotel: {hotel_object.name}
         Hotel ID: {hotel_object.hotel_id}
+        """
+        return content
+
+class SpaReservationTicket(ReservationTicket):
+    def __init__(self, customer_name, hotel_object):
+        self.customer_name = customer_name
+        self.hotel_object = hotel_object
+
+    def generate(self, customer_name, hotel_object):
+        content = f"""
+        Thank you for your SPA reservation!
+        Here are your booking details:
+        Name: {customer_name}
+        Hotel: {hotel_object.name}
         """
         return content
 
@@ -72,15 +89,21 @@ class SecureCreditCard(CreditCard):
 print(df)
 id = input("Enter the id of the hotel: ")
 hotel = Hotel(id) # create hotel instance with the id
+hotel_spa = SpaHotel(id)
 if hotel.availability(): # check if that specific hotel is available
     credit_card = SecureCreditCard(number="1234567890123456", expiration="12/26", holder="John Doe", cvc="123")
     if credit_card.validate():
-        if credit_card.authenticate(given_password="mypass1"):
+        if credit_card.authenticate(given_password="mypass"):
             hotel.book()
             name = input("Enter your name: ")
             # instance of the ReservationTicket class
             reservation_ticket = ReservationTicket(customer_name=name, hotel_object=hotel)
             print(reservation_ticket.generate(customer_name=name, hotel_object=hotel))
+            spa = input("Do you want to book a spa package? (yes/no): ")
+            if spa == "yes":
+                hotel_spa.book_spa_package()
+                reservation_ticket = SpaReservationTicket(customer_name=name, hotel_object=hotel_spa)
+                print(reservation_ticket.generate(customer_name=name, hotel_object=hotel_spa))
         else:
             print("Credit card not authenticated")
     else:
