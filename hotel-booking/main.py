@@ -3,6 +3,7 @@ import re
 import pandas as pd
 
 df = pd.read_csv("hotels.csv", dtype = {"id": str}) # using id column as str instead of int
+df_cards = pd.read_csv("cards.csv", dtype = {"number": str})
 
 class User:
     def view_hotels(self):
@@ -42,14 +43,32 @@ class ReservationTicket:
         """
         return content
 
+class CreditCard:
+    def __init__(self, number, expiration, holder, cvc):
+        self.number = number
+        self.expiration = expiration
+        self.holder = holder
+        self.cvc = cvc
+
+    def validate(self):
+        card_data = f"{self.number}{self.expiration}{self.holder}{self.cvc}"
+        if card_data in df_cards:
+            return True
+        else:
+            return False
+
 print(df)
 id = input("Enter the id of the hotel: ")
 hotel = Hotel(id) # create hotel instance with the id
 if hotel.availability(): # check if that specific hotel is available
-    hotel.book()
-    name = input("Enter your name: ")
-    # instance of the ReservationTicket class
-    reservation_ticket = ReservationTicket(customer_name=name, hotel_object=hotel)
-    print(reservation_ticket.generate(customer_name=name, hotel_object=hotel))
+    credit_card = CreditCard()
+    if credit_card.validate():
+        hotel.book()
+        name = input("Enter your name: ")
+        # instance of the ReservationTicket class
+        reservation_ticket = ReservationTicket(customer_name=name, hotel_object=hotel)
+        print(reservation_ticket.generate(customer_name=name, hotel_object=hotel))
+    else:
+        print("Credit card not valid")
 else:
     print("Hotel not available")
