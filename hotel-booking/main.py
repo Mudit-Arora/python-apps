@@ -1,5 +1,3 @@
-from re import L
-import re
 import pandas as pd
 
 df = pd.read_csv("hotels.csv", dtype = {"id": str}) # using id column as str instead of int
