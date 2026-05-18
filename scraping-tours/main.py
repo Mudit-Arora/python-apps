@@ -2,6 +2,9 @@ import requests
 import selectorlib
 import ssl, smtplib
 import time
+import sqlite3
+
+connection = sqlite3.connect("data.db")
 
 URL = "http://programmer100.pythonanywhere.com/tours/"
 
@@ -36,22 +39,33 @@ def send_email(subject, body):
 
 def store(extracted):
     # appending the list
-    with open("data.txt", "a") as file:
-        file.write(extracted + "\n")
+    row = extracted.split(",")
+    row = [item.strip() for item in row]
+    cursor = connection. cursor()
+    cursor.execute("INSERT INTO events VALUES(?,?,?)", row)
+    connection.commit()
 
 def read(extracted):
-    with open("data.txt", "r") as file:
-        return file.read()
+    row = extracted.split(",")
+    row = [item.strip() for item in row]
+    
+    band, city, date = row
+    cursor = connection. cursor()
+    cursor.execute("SELECT * FROM events WHERE band=? AND city=? AND date=?", (band, city, date))
+    rows = cursor.fetchall()
+    print(rows)
+    return rows
 
 if __name__ == "__main__":
-    scraped = scrape(URL)
-    extracted = extract(scraped)
-    print(extracted)
-    content = read(extracted)
+    while True:
+        scraped = scrape(URL)
+        extracted = extract(scraped)
+        print(extracted)
 
-    if extracted != "No upcoming tours":
-        if extracted not in content:
-            store(extracted)
-            send_email(subject="Heads up!",body="Hey, new event coming up!")
+        if extracted != "No upcoming tours":
+            row = read(extracted)
+            if not row:
+                store(extracted)
+                send_email(subject="Heads up!",body="Hey, new event coming up!")
 
-    time.sleep(2) #checks the URL every 2s
+        time.sleep(2) #checks the URL every 2s
